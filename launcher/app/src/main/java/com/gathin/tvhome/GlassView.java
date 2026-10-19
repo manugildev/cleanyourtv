@@ -54,24 +54,7 @@ public class GlassView extends View {
         float inset = 6f * density;   // room for the glow
         rect.set(inset, inset, getWidth() - inset, getHeight() - inset);
 
-        // Outer glow: three widening, fading strokes. The hardware layer caches the result, so
-        // they cost one draw, not one per frame of the spring.
-        for (int i = 1; i <= 3; i++) {
-            glow.setStrokeWidth(i * 2f * density);
-            glow.setColor((0x30 / i) << 24 | 0xFFFFFF);
-            float o = i * density;
-            canvas.drawRoundRect(rect.left - o, rect.top - o, rect.right + o, rect.bottom + o, radius + o, radius + o, glow);
-        }
-
-        canvas.drawRoundRect(rect, radius, radius, fill);
-
-        // Sheen across the top 45%: clipRect stays on the GPU (clipPath did not on the MT5895) and
-        // the round rect under it keeps the top corners rounded with a flat bottom edge.
-        canvas.save();
-        canvas.clipRect(rect.left, rect.top, rect.right, rect.top + rect.height() * 0.45f);
-        canvas.drawRoundRect(rect, radius, radius, specular);
-        canvas.restore();
-
+        // Local change: only the crisp rim is drawn; the glass fill, top sheen and outer glow are gone.
         canvas.drawRoundRect(rect, radius, radius, rim);
     }
 }

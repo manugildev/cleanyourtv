@@ -170,6 +170,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             // Cards come right after the configured dock apps, before the alphabetical grid.
             boolean ca = a.kind == Entry.CARD, cb = b.kind == Entry.CARD;
             if (ca != cb) return ca ? -1 : 1;
+            // The Settings app goes to the very end of the grid.
+            boolean sa = a.pkg.equals("com.android.tv.settings"), sb = b.pkg.equals("com.android.tv.settings");
+            if (sa != sb) return sa ? 1 : -1;
             return a.label.compareToIgnoreCase(b.label);
         });
         // Optional "Default home" tile (config.xml), only when this TV actually has a home-screen picker.

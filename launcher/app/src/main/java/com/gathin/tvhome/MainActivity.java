@@ -447,7 +447,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private void restoreFocus() {
         final String returnKey = lastFocusedKey;
         final int returnSlot = lastFocused;
+        // Local change: coming back from Settings or Wi-Fi keeps focus on that top button.
+        final int pill = pillFocusId;
+        pillFocusId = 0;
         grid.post(() -> {
+            View pillView = pill != 0 ? findViewById(pill) : null;
+            if (pillView != null && pillView.getVisibility() == View.VISIBLE) {
+                pillView.requestFocus();
+                tilesReady = true;
+                showCardPrompt();
+                return;
+            }
             int pos = adapter.positionOf(returnKey);
             focusTile(pos >= 0 ? pos : returnSlot);
             tilesReady = true;
@@ -455,8 +465,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         });
     }
 
+    /** Id of the top button (Inputs, Wi-Fi, Settings) that held focus when Home was left, or 0. */
+    private int pillFocusId = 0;
+
     @Override
     protected void onPause() {
+        View focused = getCurrentFocus();
+        int fid = focused == null ? 0 : focused.getId();
+        pillFocusId = (fid == R.id.btnInputs || fid == R.id.btnWifi || fid == R.id.btnSettings) ? fid : 0;
         super.onPause();
         unregisterReceiver(packageReceiver);
         handler.removeCallbacks(minuteTick);
